@@ -2,13 +2,16 @@
 #include <emulator.hpp>
 #include <iostream>
 
+#define LEN(ARR, TYPE) (sizeof(ARR) / sizeof(TYPE))
+
 int main(void)
 {
     Memory memory;
     Processor proc(&memory);
-    const unsigned char data[] = { 0xa9, 0x00, 0x69, 0x01, 0x8d, 0x00,
-                                   0x80, 0xc9, 0x08, 0x90, 0xf7 };
-    Program prog(data, 0x000b);
+    const unsigned char data[] = { 0xa9, 0xff, 0x8d, 0x00, 0x80, 0xa9, 0x00,
+                                   0x69, 0x01, 0x8d, 0x01, 0x80, 0xc9, 0x08,
+                                   0x90, 0xf7, 0xad, 0x00, 0x80 };
+    Program prog(data, LEN(data, unsigned char));
     proc.load(&prog);
 
     std::cout << "Program:" << std::endl;

@@ -55,6 +55,7 @@ private:
     unsigned char bcc(unsigned char rel); // 0x90
     unsigned char cmp_imm(unsigned char imm); // 0xc9
     unsigned char lda_imm(unsigned char imm); // 0xa9
+    unsigned char lda_abs(unsigned short int abs); // 0xad
     unsigned char nop(); // 0xea
     unsigned char sta_abs(unsigned short int abs); // 0x8d
     unsigned char execute(unsigned char op);
@@ -67,4 +68,4 @@ private:
     Memory *memory;
 };
 
-#endif // defined
+#endif /* ! EMULATOR_HPP */

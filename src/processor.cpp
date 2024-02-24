@@ -89,6 +89,18 @@ unsigned char Processor::cmp_imm(unsigned char imm)
     return 0x02;
 }
 
+unsigned char Processor::lda_abs(unsigned short int abs)
+{
+    pc += 0x0002;
+    a = memory->get(abs);
+    flags = ~(~flags | FLAG_N | FLAG_Z);
+    if (a > 0x7f)
+        flags |= FLAG_N;
+    if (a == 0x00)
+        flags |= FLAG_Z;
+    return 0x03;
+}
+
 unsigned char Processor::lda_imm(unsigned char imm)
 {
     a = imm;
@@ -117,23 +129,27 @@ unsigned char Processor::execute(unsigned char op)
 {
     switch (op)
     {
-    case 0x69: // ADC Immediate
+    case 0x69:
         return adc_imm(memory->get(pc));
 
-    case 0x90: // BCC
+    case 0x90:
         return bcc(memory->get(pc));
 
-    case 0xc9: // CMP Immediate
+    case 0xc9:
         return cmp_imm(memory->get(pc));
 
-    case 0xa9: // LDA Immediate
+    case 0xa9:
         return lda_imm(memory->get(pc));
 
-    case 0x8d: // STA Absolute
+    case 0xad:
+        return lda_abs((unsigned short int)memory->get(pc)
+                       | (unsigned short int)memory->get(pc + 0x0001) << 0x08);
+
+    case 0x8d:
         return sta_abs((unsigned short int)memory->get(pc)
                        | (unsigned short int)memory->get(pc + 0x0001) << 0x08);
 
-    default: // NOP
+    default:
         return nop();
     }
 }
