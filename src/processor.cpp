@@ -48,80 +48,94 @@ unsigned char Processor::next()
     return execute(op);
 }
 
+unsigned char Processor::adc_imm(unsigned char imm)
+{
+    pc++;
+    unsigned char oldA = a;
+    unsigned short int res = (unsigned short int)a + (unsigned short int)imm;
+    a = res & 0xff;
+    flags = ~(~flags | FLAG_N | FLAG_V | FLAG_Z | FLAG_C);
+    if (a > 0x7f)
+        flags |= FLAG_N;
+    if ((oldA < 0x80 && imm < 0x80 && a > 0x7f)
+        || (oldA > 0x7f && imm > 0x7f && a < 0x80))
+        flags |= FLAG_V;
+    if (a == 0x00)
+        flags |= FLAG_Z;
+    if (res > 0xff)
+        flags |= FLAG_C;
+    return 0x02;
+}
+
+unsigned char Processor::bcc(unsigned char rel)
+{
+    if ((flags & FLAG_C) == FLAG_C)
+        pc++;
+    else
+        pc = pc - (unsigned char)(~rel);
+    return 0x02;
+}
+
+unsigned char Processor::cmp_imm(unsigned char imm)
+{
+    pc++;
+    flags = ~(~flags | FLAG_N | FLAG_Z | FLAG_C);
+    if (a > imm + 0x7f)
+        flags |= FLAG_N;
+    if (a == imm)
+        flags |= FLAG_Z;
+    if (a >= imm)
+        flags |= FLAG_C;
+    return 0x02;
+}
+
+unsigned char Processor::lda_imm(unsigned char imm)
+{
+    a = imm;
+    pc++;
+    flags = ~(~flags | FLAG_N | FLAG_Z);
+    if (a > 0x7f)
+        flags |= FLAG_N;
+    if (a == 0x00)
+        flags |= FLAG_Z;
+    return 0x02;
+}
+
+unsigned char Processor::nop()
+{
+    return 0x01;
+}
+
+unsigned char Processor::sta_abs(unsigned short int abs)
+{
+    pc += 0x0002;
+    memory->set(abs, a);
+    return 0x03;
+}
+
 unsigned char Processor::execute(unsigned char op)
 {
-    unsigned short int address;
-    unsigned short int res;
-    unsigned char oldA;
-    unsigned char summand;
-    unsigned char length;
     switch (op)
     {
     case 0x69: // ADC Immediate
-        length = 0x02;
-        oldA = a;
-        summand = memory->get(pc);
-        pc++;
-        res = (unsigned short int)a + (unsigned short int)summand;
-        a = res & 0xff;
-        flags = ~(~flags | FLAG_N | FLAG_V | FLAG_Z | FLAG_C);
-        if (a > 0x7f)
-            flags |= FLAG_N;
-        if (oldA < 0x80 && summand < 0x80 && a > 0x7f
-            || oldA > 0x7f && summand > 0x7f && a < 0x80)
-            flags |= FLAG_V;
-        if (a == 0x00)
-            flags |= FLAG_Z;
-        if (res > 0xff)
-            flags |= FLAG_C;
-        break;
+        return adc_imm(memory->get(pc));
 
     case 0x90: // BCC
-        length = 0x02;
-        summand = ~memory->get(pc);
-        if ((flags & FLAG_C) == FLAG_C)
-            pc++;
-        else
-            pc = pc - (unsigned short int)summand;
-        break;
+        return bcc(memory->get(pc));
 
     case 0xc9: // CMP Immediate
-        length = 0x02;
-        summand = memory->get(pc);
-        pc++;
-        flags = ~(~flags | FLAG_N | FLAG_Z | FLAG_C);
-        if (a > summand + 0x7f)
-            flags |= FLAG_N;
-        if (a == summand)
-            flags |= FLAG_Z;
-        if (a >= summand)
-            flags |= FLAG_C;
-        break;
+        return cmp_imm(memory->get(pc));
 
     case 0xa9: // LDA Immediate
-        length = 0x02;
-        a = memory->get(pc);
-        pc++;
-        flags = ~(~flags | FLAG_N | FLAG_Z);
-        if (a > 0x7f)
-            flags |= FLAG_N;
-        if (a == 0x00)
-            flags |= FLAG_Z;
-        break;
+        return lda_imm(memory->get(pc));
 
     case 0x8d: // STA Absolute
-        length = 0x03;
-        address = memory->get(pc) | memory->get(pc + 0x0001) << 0x08;
-        pc += 0x0002;
-        memory->set(address, a);
-        break;
+        return sta_abs((unsigned short int)memory->get(pc)
+                       | (unsigned short int)memory->get(pc + 0x0001) << 0x08);
 
     default: // NOP
-        length = 1;
-        break;
+        return nop();
     }
-
-    return length;
 }
 
 void Processor::load(Program *program)

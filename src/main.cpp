@@ -2,7 +2,7 @@
 #include <emulator.hpp>
 #include <iostream>
 
-int main(int argc, char *argv[])
+int main(void)
 {
     Memory memory;
     Processor proc(&memory);
@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     Program prog(data, 0x000b);
     proc.load(&prog);
 
+    std::cout << "Program:" << std::endl;
     for (unsigned short int i = 0;
          i < prog.getLength() && i + 0x0600 < MEMORY_SIZE; i++)
     {
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
     }
     std::cout << std::endl;
 
+    std::cout << "Execution:" << std::endl;
     while (proc.getPC() < prog.getLength() + 0x0600)
     {
         unsigned short int oldPC = proc.getPC();
@@ -37,6 +39,8 @@ int main(int argc, char *argv[])
                   << "\tPC:0x" << (int)proc.getPC() << "\tNV-BDIZC:0b"
                   << std::bitset<8>(proc.getFlags()) << std::endl;
     }
+
+    prog.freeData();
 
     return 0;
 }

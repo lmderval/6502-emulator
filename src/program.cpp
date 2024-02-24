@@ -20,3 +20,8 @@ unsigned short int Program::getLength()
 {
     return length;
 }
+
+void Program::freeData(void)
+{
+    free(this->data);
+}

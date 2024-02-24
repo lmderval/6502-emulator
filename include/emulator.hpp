@@ -30,6 +30,7 @@ public:
     Program(const unsigned char data[], unsigned short int length);
     unsigned short int getLength();
     unsigned char get(unsigned short int address);
+    void freeData(void);
 
 private:
     unsigned short int length;
@@ -50,6 +51,12 @@ public:
     unsigned char getFlags();
 
 private:
+    unsigned char adc_imm(unsigned char imm); // 0x69
+    unsigned char bcc(unsigned char rel); // 0x90
+    unsigned char cmp_imm(unsigned char imm); // 0xc9
+    unsigned char lda_imm(unsigned char imm); // 0xa9
+    unsigned char nop(); // 0xea
+    unsigned char sta_abs(unsigned short int abs); // 0x8d
     unsigned char execute(unsigned char op);
     unsigned char a;
     unsigned char x;
