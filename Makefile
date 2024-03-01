@@ -1,6 +1,6 @@
-CC = g++
+CXX = g++
 CPPFLAGS = -Iinclude
-CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -Wvla -pedantic
+CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -Wold-style-cast -pedantic
 
 BIN = main
 OBJ = src/$(BIN).o \
@@ -11,7 +11,7 @@ OBJ = src/$(BIN).o \
 all: $(BIN)
 
 $(BIN): $(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CXX) $(LDFLAGS) -o $@ $^
 
 debug: CXXFLAGS += -g -fsanitize=address
 debug: LDFLAGS += -fsanitize=address
