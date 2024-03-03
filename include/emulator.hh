@@ -49,6 +49,7 @@ public:
     unsigned char getFlags() const;
 
 private:
+    unsigned char clc(); // 0x18
     unsigned char adc_imm(unsigned char imm); // 0x69
     unsigned char bcc(unsigned char rel); // 0x90
     unsigned char cmp_imm(unsigned char imm); // 0xc9

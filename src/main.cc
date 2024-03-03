@@ -12,6 +12,7 @@ int main()
     const unsigned char data[] = {
         0xa9, 0xff,             // lda #$ff
         0x8d, 0x00, 0x80,       // sta $8000
+        0x18,                   // clc
         0xa9, 0x00,             // lda #$00
         0x69, 0x01,             // adc #$01
         0x8d, 0x01, 0x80,       // sta $8001

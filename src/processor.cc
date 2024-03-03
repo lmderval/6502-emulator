@@ -47,6 +47,12 @@ unsigned char Processor::next()
     return execute(op);
 }
 
+unsigned char Processor::clc()
+{
+    flags_ = ~(~flags_ | FLAG_C);
+    return 0x01;
+}
+
 unsigned char Processor::adc_imm(unsigned char imm)
 {
     pc_++;
@@ -129,6 +135,9 @@ unsigned char Processor::execute(unsigned char op)
 {
     switch (op)
     {
+    case 0x18:
+        return clc();
+        
     case 0x69:
         return adc_imm(memory_.get(pc_));
 
